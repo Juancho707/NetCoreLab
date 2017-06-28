@@ -11,13 +11,18 @@ namespace NetCoreLab
 {
     class TemplateInterpreter
     {
-        private string rawTemplate;
+        private Stream rawInput;
+        private Stream rawTemplate;
+        private Stream rawData;
+
+        private TemplateModel template;
+
         private StringBuilder builder;
         private object dataItem;
 
-        public TemplateInterpreter(string raw)
+        public TemplateInterpreter(Stream raw)
         {
-            rawTemplate = raw;
+            rawInput = PreTransform(raw);
             builder = new StringBuilder();
 
             dataItem = new
@@ -41,9 +46,61 @@ namespace NetCoreLab
             };
         }
 
+        Stream PreTransform(Stream raw)
+        {
+            return raw;
+        }
+
+        public void ReadRawInput()
+        {
+            using (var sr = new StreamReader(rawInput))
+            {
+                var currentLine = sr.ReadLine();
+                while (currentLine != null)
+                {
+                    if (currentLine.StartsWith("#Template"))
+                    {
+                        rawTemplate = new MemoryStream();
+                        var writer = new StreamWriter(rawTemplate);
+                        
+                            while (!currentLine.StartsWith("#end"))
+                            {
+                                currentLine = sr.ReadLine();
+                                writer.WriteLine(currentLine);
+                            }
+
+                        writer.WriteLine(currentLine);
+                        writer.Flush();
+                    }
+                    else if (currentLine.StartsWith("#Data Structure"))
+                    {
+                        rawData = new MemoryStream();
+                        var writer = new StreamWriter(rawData);
+                        
+                        while (!currentLine.StartsWith("#end"))
+                        {
+                            currentLine = sr.ReadLine();
+                            writer.WriteLine(currentLine);
+                        }
+
+                        writer.WriteLine(currentLine);
+                        writer.Flush();
+                        
+                    }
+
+                    currentLine = sr.ReadLine();
+                }
+            }
+        }
+
+        public void ReadRawTemplate()
+        {
+            template = new TemplateModel(rawTemplate);
+        }
+
         public string ApplyTemplate()
         {
-            var sr = new StringReader(rawTemplate);
+            var sr = new StreamReader(rawInput);
             var line = sr.ReadLine();
             if (string.IsNullOrEmpty(line))
             {
@@ -68,7 +125,7 @@ namespace NetCoreLab
         {
             var capture = Regex.Match(raw, @"(?s)(?<=<#if).*?(?=#if>)");
             var ifBlock = new IfBlock(capture.Captures[0].ToString());
-            Console.WriteLine(ifBlock.Evaluate(dataItem).Evaluate(dataItem));
+            Console.WriteLine(ifBlock.ResolveTemplate(dataItem));
         }
 
         string ProcessParameter(string raw)

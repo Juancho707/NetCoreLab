@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace NetCoreLab.InterpreterModels
 {
-    class TemplateParameter
+    class TemplateParameter: IResolvable
     {
         public string parameterPath;
         public string modifier;
@@ -35,7 +35,7 @@ namespace NetCoreLab.InterpreterModels
             return null;
         }
 
-        public string Evaluate(object target)
+        public string ResolveTemplate(object target)
         {
             var raw = AnonymExplorer.GetValueFromAnonym(target, parameterPath);
             return ApplyModifier(raw, modifier);

@@ -8,12 +8,12 @@ using System.Reflection;
 
 namespace NetCoreLab.InterpreterModels
 {
-    class IfBlock
+    class IfBlock : IResolvable
     {
         public IfCondition[] conditions;
         public string optr;
-        public TemplateParameter action;
-        public TemplateParameter elseAction;
+        public IResolvable action;
+        public IResolvable elseAction;
 
         public IfBlock(string raw)
         {
@@ -59,7 +59,7 @@ namespace NetCoreLab.InterpreterModels
             }
         }
 
-        public TemplateParameter Evaluate(object target)
+        public string ResolveTemplate(object target)
         {
             bool result = false;
 
@@ -77,7 +77,7 @@ namespace NetCoreLab.InterpreterModels
                 result = conditions.Select(x => x.Evaluate(target)).All(x => x == true);
             }
 
-            return result ? action : elseAction;
+            return result ? action.ResolveTemplate(target) : elseAction.ResolveTemplate(target);
         }
     }
 }
