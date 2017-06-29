@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace NetCoreLab.InterpreterModels
@@ -56,6 +57,23 @@ namespace NetCoreLab.InterpreterModels
                 currentLine = sr.ReadLine();
             }
 
+        }
+
+        public string ResolveTemplate(object dataItem)
+        {
+            var builder = new StringBuilder();
+
+            foreach (var f in TemplateSteps)
+            {
+                builder.Append(f.ResolveTemplate(dataItem));
+
+                if (f != TemplateSteps.Last())
+                {
+                    builder.Append("_");
+                }
+            }
+
+            return builder.ToString();
         }
     }
 }

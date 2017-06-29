@@ -18,7 +18,7 @@ namespace NetCoreLab.InterpreterModels
         public IfBlock(string raw)
         {
             var subBlocks = Regex.Matches(raw, @"(?s)(?<=>).*?(?=<)");
-            var innerBlock = Regex.Matches(raw, @"(?s)(?<=).*?(?=>)")[0].Value;
+            var innerBlock = Regex.Matches(raw, @"(?s)(?<=<#if).*?(?=>)")[0].Value;
 
 
             var rawAction = subBlocks[0].Value;
@@ -46,8 +46,7 @@ namespace NetCoreLab.InterpreterModels
             }
             else
             {
-                innerBlock = innerBlock.Replace(optr, "|");
-                var rawConditions = innerBlock.Split('|');
+                var rawConditions = innerBlock.Split(new[] { "||" }, StringSplitOptions.RemoveEmptyEntries);
                 var condList = new List<IfCondition>();
 
                 foreach(var c in rawConditions)

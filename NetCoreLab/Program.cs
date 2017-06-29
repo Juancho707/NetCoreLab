@@ -15,10 +15,7 @@ namespace NetCoreLab
                     using (var f = File.OpenRead(@"C:\template.txt"))
                     {
                         TemplateInterpreter interpreter = new TemplateInterpreter(f);
-                        interpreter.ReadRawInput();
-                        interpreter.ReadRawTemplate();
-                        //Console.WriteLine(interpreter.ApplyTemplate());
-                        //interpreter.GetIfStatement(input);
+                        Console.WriteLine(interpreter.ResolveTemplate());
                     }
                 }
 

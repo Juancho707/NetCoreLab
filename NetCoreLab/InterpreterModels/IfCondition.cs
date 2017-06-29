@@ -16,41 +16,45 @@ namespace NetCoreLab.InterpreterModels
 
         public IfCondition(string raw)
         {
-            raw = raw.Replace(GetComparer(raw), "|");
-            var parts = raw.Split('|');
+            var parts = raw.Split(new[] { GetComparer(raw) }, StringSplitOptions.RemoveEmptyEntries);
             parameterPath = parts[0];
             value = parts[1].Replace(@"""", string.Empty);            
         }
         
         string GetComparer(string raw)
         {
-            if (raw.Contains("!="))
+            if (raw.Contains("=="))
             {
-                comparer = ConditionalComparer.Diff;
+                comparer = ConditionalComparer.Equals;
+                return "==";
+            }
+            else if (raw.Contains("!="))
+            {
+                comparer = ConditionalComparer.Different;
                 return "!=";
             }
             else if (raw.Contains(">"))
             {
-                comparer = ConditionalComparer.Gr;
+                comparer = ConditionalComparer.Greater;
                 return ">";
             }
-            //else if (raw.Contains("=="))
-            //{
-            //    comparer = ConditionalComparer.Eq;
-            //    return "==";
-            //}
-            //else if (raw.Contains("=="))
-            //{
-            //    comparer = ConditionalComparer.Eq;
-            //    return "==";
-            //}
-            //else if (raw.Contains("=="))
-            //{
-            //    comparer = ConditionalComparer.Eq;
-            //    return "==";
-            //}
+            else if (raw.Contains(">="))
+            {
+                comparer = ConditionalComparer.GreaterEquals;
+                return ">=";
+            }
+            else if (raw.Contains("<"))
+            {
+                comparer = ConditionalComparer.Less;
+                return "<";
+            }
+            else if (raw.Contains("<="))
+            {
+                comparer = ConditionalComparer.LessEquals;
+                return "<=";
+            }
 
-            comparer = ConditionalComparer.Eq;
+            comparer = ConditionalComparer.Equals;
             return "==";
         }
 
@@ -58,9 +62,9 @@ namespace NetCoreLab.InterpreterModels
         {
             switch(comparer)
             {
-                case ConditionalComparer.Eq:
+                case ConditionalComparer.Equals:
                     return AnonymExplorer.GetValueFromAnonym(target, parameterPath) == value;
-                case ConditionalComparer.Diff:
+                case ConditionalComparer.Different:
                     return AnonymExplorer.GetValueFromAnonym(target, parameterPath) != value;
             }
 

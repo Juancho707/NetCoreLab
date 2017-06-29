@@ -1,5 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
+using System.Dynamic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -11,24 +15,40 @@ namespace NetCoreLab.InterpreterModels
         public static string GetValueFromAnonym(object dataItem, string path)
         {
             var dataHierarchy = path.Split('.');
-            object node = dataItem;
+            var node = dataItem as JObject;
+            JValue result = null;
 
-                for (int i = 0; i < dataHierarchy.Length; i++)
+            for (int i = 0; i < dataHierarchy.Length; i++)
+            {
+                if (i < dataHierarchy.Length - 1)
                 {
-                    node = GetObjectFieldValue(node, dataHierarchy[i]);
+                    node = NavigateNode(node, dataHierarchy[i]);
                 }
+                else
+                {
+                    result = GetValue(node, dataHierarchy[i]);
+                }
+            }
 
-                string result = node.ToString();      
-
-            return result;
+            return result != null ? result.Value.ToString() : null;
         }
 
-        static object GetObjectFieldValue(object target, string fieldName)
+        static JObject NavigateNode(JObject target, string fieldName)
         {
-            var fields = target.GetType().GetProperties();
-            var fInfo = fields.First(x => x.Name.Equals(fieldName));
+            return target[fieldName] as JObject;
+        }
 
-            return fInfo.GetValue(target);
+        static JValue GetValue(JObject target, string fieldName)
+        {
+            return target[fieldName] as JValue;
+        }
+
+        public static object CreateFromRaw(Stream raw)
+        {
+            var reader = new StreamReader(raw);
+            raw.Position = 0;
+            //var extracted = reader.ReadToEnd().Replace("\t", string.Empty);
+            return JsonConvert.DeserializeObject(reader.ReadToEnd());
         }
     }
 }

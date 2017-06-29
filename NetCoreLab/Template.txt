@@ -1,0 +1,27 @@
+﻿#Template
+_${data.customer?cap_first}
+_${data.provider?cap_first}_
+<#if data.deliverytype == "subtitle" || data.deliverytype == "caption">
+${data.DL3.assetdetails.nf?upper_case}
+<#else>
+${data.DL3.assetdetails.nfdf?upper_case}
+</#if>
+_${data.tag[4:]}.mpg
+#end Template"
+
+#Data Structure
+{
+	data : {
+		"customer" : "amazon",
+		"provider" : "starz",
+		"deliverytype" : "subtitle",
+		"tag" : "01_Trailer",
+		"DL3" : {
+			"assetdetails" : {
+				"nf" : "dsg",
+				"nfdf" : "sgd" 					  
+			}
+		}
+	}
+}
+#end Data Structure

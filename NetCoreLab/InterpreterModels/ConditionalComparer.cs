@@ -2,11 +2,11 @@
 {
     enum ConditionalComparer
     {
-        Eq,
-        Diff,
-        Gr,
+        Equals,
+        Different,
+        Greater,
         Less,
-        GrEq,
-        LeEq
+        GreaterEquals,
+        LessEquals
     }
 }
