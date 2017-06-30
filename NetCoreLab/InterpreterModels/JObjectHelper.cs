@@ -1,17 +1,30 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Dynamic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 
 namespace NetCoreLab.InterpreterModels
 {
-    class AnonymExplorer
+    /// <summary>
+    /// Helper that exposes tools to work with deserialized JSON objects.
+    /// </summary>
+    internal class JObjectHelper
     {
+        private static JObject NavigateNode(JObject target, string fieldName)
+        {
+            return target[fieldName] as JObject;
+        }
+
+        private static JValue GetValue(JObject target, string fieldName)
+        {
+            return target[fieldName] as JValue;
+        }
+
+        /// <summary>
+        /// Gets a value from a generic JSON object.
+        /// </summary>
+        /// <param name="dataItem">JSON object.</param>
+        /// <param name="path">The hierarchy path to the target field.</param>
+        /// <returns>Target field value.</returns>
         public static string GetValueFromAnonym(object dataItem, string path)
         {
             var dataHierarchy = path.Split('.');
@@ -32,22 +45,16 @@ namespace NetCoreLab.InterpreterModels
 
             return result != null ? result.Value.ToString() : null;
         }
-
-        static JObject NavigateNode(JObject target, string fieldName)
-        {
-            return target[fieldName] as JObject;
-        }
-
-        static JValue GetValue(JObject target, string fieldName)
-        {
-            return target[fieldName] as JValue;
-        }
-
+             
+        /// <summary>
+        /// Deserializes an object from a data stream.
+        /// </summary>
+        /// <param name="raw">Raw data stream.</param>
+        /// <returns>Serialized object.</returns>
         public static object CreateFromRaw(Stream raw)
         {
             var reader = new StreamReader(raw);
             raw.Position = 0;
-            //var extracted = reader.ReadToEnd().Replace("\t", string.Empty);
             return JsonConvert.DeserializeObject(reader.ReadToEnd());
         }
     }

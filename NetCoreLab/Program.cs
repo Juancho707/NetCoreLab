@@ -12,9 +12,9 @@ namespace NetCoreLab
             {
                 if (input.Equals("template"))
                 {
-                    using (var f = File.OpenRead(@"C:\template.txt"))
+                    using (var f = File.OpenText(@"C:\template.txt"))
                     {
-                        TemplateInterpreter interpreter = new TemplateInterpreter(f);
+                        var interpreter = new FileNameTemplateInterpreter(f.ReadToEnd());
                         Console.WriteLine(interpreter.ResolveTemplate());
                     }
                 }

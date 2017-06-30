@@ -1,6 +1,9 @@
 ﻿namespace NetCoreLab.InterpreterModels
 {
-    enum ConditionalComparer
+    /// <summary>
+    /// Conditional comparares.
+    /// </summary>
+    internal enum ConditionalComparer
     {
         Equals,
         Different,

@@ -1,33 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Reflection;
 
 namespace NetCoreLab.InterpreterModels
 {
-    class IfBlock : IResolvable
+    /// <summary>
+    /// Conditional block object from a template.
+    /// </summary>
+    internal class IfBlock : IResolvable
     {
-        public IfCondition[] conditions;
-        public string optr;
-        public IResolvable action;
-        public IResolvable elseAction;
+        private IfCondition[] conditions;
+        private string optr;
+        private TemplateModel action;
+        private TemplateModel elseAction;
 
+        /// <summary>
+        /// The concrete form of the placeholder representation.
+        /// </summary>
+        public string ConcreteForm { get; set; }
+
+        /// <summary>
+        /// Creates a new instance of the IfBlock class.
+        /// </summary>
+        /// <param name="raw">Raw string.</param>
         public IfBlock(string raw)
         {
-            var subBlocks = Regex.Matches(raw, @"(?s)(?<=>).*?(?=<)");
-            var innerBlock = Regex.Matches(raw, @"(?s)(?<=<#if).*?(?=>)")[0].Value;
+            ConcreteForm = RegExHelper.TrimUntilChar(RegExHelper.ClearStringFormatting(raw), '$') + "}";
+            var subBlocks = RegExHelper.GetContainedString(raw, ">", "<");
+            var innerBlock = RegExHelper.GetContainedString(raw, "<#if", ">")[0].Value;
 
 
             var rawAction = subBlocks[0].Value;
             if(subBlocks.Count > 1)
             {
-                elseAction = TemplateParameter.FromRaw(subBlocks[1].Value);
+                elseAction = new TemplateModel(subBlocks[1].Value);
             }
 
-            action = TemplateParameter.FromRaw(rawAction);
+            action = new TemplateModel(rawAction);
 
             innerBlock = innerBlock.Replace(" ", string.Empty);
 
@@ -58,6 +67,12 @@ namespace NetCoreLab.InterpreterModels
             }
         }
 
+
+        /// <summary>
+        /// Resolve placeholder value and format.
+        /// </summary>
+        /// <param name="target">Target data context.</param>
+        /// <returns>Formatted string.</returns>
         public string ResolveTemplate(object target)
         {
             bool result = false;

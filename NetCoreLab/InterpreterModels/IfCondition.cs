@@ -1,27 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Reflection;
 
 namespace NetCoreLab.InterpreterModels
 {
-    class IfCondition
+    internal class IfCondition
     {
-        public string parameterPath;
-        public string value;
-        public ConditionalComparer comparer;        
+        private string parameterPath;
+        private string value;
+        private ConditionalComparer comparer;
 
-        public IfCondition(string raw)
-        {
-            var parts = raw.Split(new[] { GetComparer(raw) }, StringSplitOptions.RemoveEmptyEntries);
-            parameterPath = parts[0];
-            value = parts[1].Replace(@"""", string.Empty);            
-        }
-        
-        string GetComparer(string raw)
+        private string GetComparer(string raw)
         {
             if (raw.Contains("=="))
             {
@@ -58,14 +45,30 @@ namespace NetCoreLab.InterpreterModels
             return "==";
         }
 
+        /// <summary>
+        /// Creates a new instance of the IfCondition class.
+        /// </summary>
+        /// <param name="raw">Raw string.</param>
+        public IfCondition(string raw)
+        {
+            var parts = raw.Split(new[] { GetComparer(raw) }, StringSplitOptions.RemoveEmptyEntries);
+            parameterPath = parts[0];
+            value = parts[1].Replace(@"""", string.Empty).Replace(@"'", string.Empty);
+        }       
+        
+        /// <summary>
+        /// Evaluates the condition.
+        /// </summary>
+        /// <param name="target">Data context.</param>
+        /// <returns>Evaluated conditional at the data context.</returns>
         public bool Evaluate(object target)
         {
             switch(comparer)
             {
                 case ConditionalComparer.Equals:
-                    return AnonymExplorer.GetValueFromAnonym(target, parameterPath) == value;
+                    return JObjectHelper.GetValueFromAnonym(target, parameterPath) == value;
                 case ConditionalComparer.Different:
-                    return AnonymExplorer.GetValueFromAnonym(target, parameterPath) != value;
+                    return JObjectHelper.GetValueFromAnonym(target, parameterPath) != value;
             }
 
             return true;
